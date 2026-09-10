@@ -73,8 +73,11 @@
   box-shadow: inset 3px 0 0 var(--tone-color, var(--accent));
 }
 
-.priority-actions__row--high {
+.priority-actions__row--critical {
   --tone-color: var(--red);
+}
+.priority-actions__row--high {
+  --tone-color: var(--orange);
 }
 
 .priority-actions__row--medium {
@@ -110,8 +113,11 @@
   display: inline-block;
 }
 
-.priority-actions__dot--high {
+.priority-actions__dot--critical {
   background: var(--red);
+}
+.priority-actions__dot--high {
+  background: var(--orange);
 }
 
 .priority-actions__dot--medium {
@@ -207,10 +213,15 @@
   border: 1px solid transparent;
 }
 
-.risk-badge--high {
+.risk-badge--critical {
   color: var(--red);
   background: var(--red-soft);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.risk-badge--high {
+  color: var(--orange);
+  background: var(--orange-soft);
+  border-color: rgba(249, 115, 22, 0.2);
 }
 
 .risk-badge--medium {

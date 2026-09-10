@@ -91,17 +91,30 @@
   font-size: 13px;
   text-align: left;
   cursor: pointer;
-  transition: background 0.1s, color 0.1s;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
 }
 
 .sidebar__item:hover {
-  background: var(--bg-surface-hover);
+  background: var(--bg-surface);
   color: var(--text-h);
 }
 
 .sidebar__item.is-active {
-  background: var(--bg-surface-hover);
-  color: var(--text-h);
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  font-weight: 500;
+}
+
+.sidebar__item.is-active::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
 }
 
 .sidebar__item-icon {

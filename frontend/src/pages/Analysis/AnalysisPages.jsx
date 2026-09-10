@@ -22,7 +22,11 @@ function Empty({ message = "Run a scan to view real analysis data." }) {
   return (
     <main className="analysis-page">
       <section className="analysis-page__panel">
-        <div className="analysis-page__empty">{message}</div>
+        <div className="analysis-page__empty">
+          <ScanSearch size={32} strokeWidth={1.5} className="analysis-page__empty-icon" />
+          <h3 className="analysis-page__empty-title">No data available</h3>
+          <p className="analysis-page__empty-message">{message}</p>
+        </div>
       </section>
     </main>
   )
@@ -532,27 +536,28 @@ export function ScanPage({
             host.
           </p>
 
-          <input
-            className="analysis-page__filter"
-            value={path}
-            onChange={(event) =>
-              setPath(event.target.value)
-            }
-            placeholder="data/sample/demo-target"
-            disabled={scanning}
-          />
-
-          <button
-            className="analysis-page__button"
-            type="button"
-            onClick={() => onScan(path)}
-            disabled={scanning || !path.trim()}
-          >
-            {scanning ? "Scanning…" : "Run scan"}
-          </button>
+          <div className="analysis-page__scan-form">
+            <input
+              className="analysis-page__filter"
+              value={path}
+              onChange={(event) =>
+                setPath(event.target.value)
+              }
+              placeholder="data/sample/demo-target"
+              disabled={scanning}
+            />
+            <button
+              className="analysis-page__button--primary"
+              type="button"
+              onClick={() => onScan(path)}
+              disabled={scanning || !path.trim()}
+            >
+              {scanning ? "Scanning…" : "Run scan"}
+            </button>
+          </div>
 
           {error && (
-            <p className="analysis-page__empty">
+            <p className="analysis-page__error">
               {error}
             </p>
           )}

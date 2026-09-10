@@ -10,10 +10,16 @@
   border: 1px solid transparent;
 }
 
-.severity-badge--high {
+.severity-badge--critical {
   color: var(--red);
   background: var(--red-soft);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.severity-badge--high {
+  color: var(--orange);
+  background: var(--orange-soft);
+  border-color: rgba(249, 115, 22, 0.2);
 }
 
 .severity-badge--medium {

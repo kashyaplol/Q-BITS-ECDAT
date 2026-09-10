@@ -102,19 +102,20 @@
   align-items: center;
   gap: 7px;
   padding: 6px 12px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--accent);
   border-radius: 5px;
-  background: var(--text-h);
-  color: var(--bg);
+  background: var(--accent);
+  color: #fff;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
 
 .header__scan-btn:hover {
-  background: var(--text);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .header__icon-btn {

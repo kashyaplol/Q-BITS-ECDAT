@@ -13,10 +13,10 @@ import {
 } from "../../utils/risk"
 
 const RISK_COLORS = {
-  CRITICAL: "#ef4444",
-  HIGH: "#f97316",
-  MEDIUM: "#f59e0b",
-  LOW: "#22c55e",
+  CRITICAL: "var(--red)",
+  HIGH: "var(--orange)",
+  MEDIUM: "var(--amber)",
+  LOW: "var(--green)",
 }
 
 function Dashboard({ analysis, searchQuery = "", onSearchChange }) {

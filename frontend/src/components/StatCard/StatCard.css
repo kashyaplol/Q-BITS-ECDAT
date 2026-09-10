@@ -5,6 +5,7 @@
   border-radius: 6px;
   padding: 16px 18px 14px;
   overflow: hidden;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .stat-card__glow {
@@ -13,6 +14,7 @@
 
 .stat-card:hover {
   border-color: var(--border-strong);
+  background: var(--bg-surface-hover);
 }
 
 .stat-card:hover .stat-card__icon {

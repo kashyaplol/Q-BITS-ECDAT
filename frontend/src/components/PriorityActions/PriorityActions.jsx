@@ -1,7 +1,7 @@
 import "./PriorityActions.css"
 import { Eye, ShieldAlert } from "lucide-react"
 const RISK_META = {
-  critical: { label: "Critical", class: "risk-badge--high" },
+  critical: { label: "Critical", class: "risk-badge--critical" },
   high: { label: "High", class: "risk-badge--high" },
   medium: { label: "Medium", class: "risk-badge--medium" },
   low: { label: "Low", class: "risk-badge--low" },

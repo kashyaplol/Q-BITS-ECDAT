@@ -53,9 +53,10 @@
   border: 1px solid var(--border);
   border-radius: 5px;
   background: var(--bg-input);
-  color: var(--text);
-  font-size: 12px;
-  padding: 7px 9px;
+  color: var(--text-h);
+  font-size: 13px;
+  padding: 8px 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .analysis-page__filter {
@@ -66,7 +67,8 @@
 
 .analysis-page__filter:focus,
 .analysis-page__select:focus {
-  border-color: var(--accent-border);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
   outline: none;
 }
 
@@ -97,6 +99,10 @@
   border-bottom: 1px solid var(--border);
   color: var(--text);
   vertical-align: middle;
+}
+
+.analysis-page__table tbody tr {
+  transition: background 0.15s;
 }
 
 .analysis-page__table tbody tr:last-child td {
@@ -132,31 +138,101 @@
 }
 
 .analysis-page__button {
-  border: 1px solid var(--accent-border);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--accent);
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  background: var(--bg-surface-hover);
+  color: var(--text-h);
   cursor: pointer;
   font-size: 11.5px;
-  font-weight: 600;
-  padding: 5px 9px;
+  font-weight: 500;
+  padding: 5px 10px;
   white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .analysis-page__button:hover {
-  background: var(--accent-soft);
+  background: var(--bg-elevated);
+  border-color: var(--text-muted);
+}
+
+.analysis-page__button--primary {
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.analysis-page__button--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.analysis-page__button--primary:disabled {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+  cursor: not-allowed;
 }
 
 .analysis-page__empty {
   color: var(--text-muted);
-  padding: 28px 16px;
+  padding: 64px 16px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.analysis-page__empty-icon {
+  color: var(--border-strong);
+  margin-bottom: 4px;
+}
+
+.analysis-page__empty-title {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.analysis-page__empty-message {
+  margin: 0;
+  font-size: 13px;
+  max-width: 320px;
+}
+
+.analysis-page__error {
+  color: var(--red);
+  background: var(--red-soft);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 16px;
+  font-size: 12.5px;
 }
 
 .analysis-page__detail {
   padding: 16px;
   border-top: 1px solid var(--border);
   background: var(--bg-elevated);
+}
+
+.analysis-page__detail:first-child {
+  border-top: none;
+}
+
+.analysis-page__scan-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .analysis-page__detail-title {
