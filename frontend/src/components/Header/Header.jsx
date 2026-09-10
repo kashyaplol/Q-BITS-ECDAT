@@ -1,45 +1,39 @@
-import './Header.css'
-import MOCK_SUMMARY from '../../data/mockFindings'
-import { timeAgo, formatTimestamp } from '../../utils/risk'
+import "./Header.css"
+import { Search, Play, CircleHelp } from "lucide-react"
+import MOCK_SUMMARY from "../../data/mockFindings"
+import { timeAgo, formatTimestamp } from "../../utils/risk"
 
 function Header({ onRunScan }) {
   const relTime = timeAgo(MOCK_SUMMARY.lastScan)
   const exactTime = formatTimestamp(MOCK_SUMMARY.lastScan)
-  const scanStatus = MOCK_SUMMARY.scanStatus
 
   return (
     <header className="header">
       <div className="header__title">
-        <div className="header__title-row">
-          <h1>{MOCK_SUMMARY.repoName}</h1>
-          <span className={`header__status header__status--${scanStatus}`}>
-            <span className="header__status-dot" />
-            {scanStatus}
-          </span>
-        </div>
+        <h1>Security Dashboard</h1>
         <p className="header__subtitle">
-          Cryptographic asset discovery &amp; risk assessment &middot;{' '}
+          Cryptographic asset discovery &amp; risk assessment
+          <span className="header__sep" />
           <span className="header__last-scan" title={exactTime}>
             Last scanned {relTime}
           </span>
+          <span className="header__status-dot" aria-hidden="true" />
         </p>
       </div>
 
       <div className="header__actions">
         <div className="header__search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="7" />
-            <path d="M21 21l-4.3-4.3" />
-          </svg>
+          <Search size={15} strokeWidth={2} />
           <input type="search" placeholder="Search findings..." aria-label="Search findings" />
         </div>
 
         <button type="button" className="header__scan-btn" onClick={onRunScan}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
+          <Play size={14} strokeWidth={2.2} fill="currentColor" />
           Run Scan
+        </button>
+
+        <button type="button" className="header__icon-btn" aria-label="Help">
+          <CircleHelp size={17} strokeWidth={1.8} />
         </button>
 
         <div className="header__avatar" title="Analyst">

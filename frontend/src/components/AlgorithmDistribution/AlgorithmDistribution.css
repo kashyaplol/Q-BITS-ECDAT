@@ -1,58 +1,68 @@
 .algo-dist {
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+  min-width: 0;
 }
 
-.algo-dist__bars {
+.algo-dist__header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.algo-dist__heading {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.algo-dist__row {
-  display: grid;
-  grid-template-columns: 100px 1fr 28px;
-  align-items: center;
-  gap: 10px;
+.algo-dist__heading-icon {
+  color: var(--cyan);
 }
 
-.algo-dist__label {
-  font-family: var(--mono);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.algo-dist__track {
-  height: 8px;
-  border-radius: 4px;
-  background: var(--bg-elevated);
-  overflow: hidden;
-}
-
-.algo-dist__fill {
-  height: 100%;
-  border-radius: 4px;
-  background: var(--accent);
-  opacity: 0.7;
-  transition: width 0.3s ease;
-}
-
-.algo-dist__count {
-  font-family: var(--mono);
-  font-size: 12px;
+.algo-dist__heading h2 {
+  margin: 0;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-h);
-  text-align: right;
+  letter-spacing: -0.2px;
 }
 
-@media (max-width: 640px) {
-  .algo-dist__row {
-    grid-template-columns: 80px 1fr 24px;
-  }
+.algo-dist__hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.algo-dist__chart {
+  width: 100%;
+  min-width: 0;
+}
+
+.algo-dist__chart .recharts-wrapper {
+  min-height: 200px;
+}
+
+.algo-dist__tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 11px;
+  font-size: 12px;
+}
+
+.algo-dist__tooltip-label {
+  color: var(--text-h);
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+.algo-dist__tooltip-value {
+  color: var(--text-muted);
 }

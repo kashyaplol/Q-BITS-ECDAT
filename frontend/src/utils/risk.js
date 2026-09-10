@@ -86,3 +86,13 @@ export function getRiskPriority(finding) {
   const order = { high: 0, medium: 1, low: 2 }
   return order[toRiskLevel(finding)] ?? 3
 }
+
+export function computeLanguageDistribution(findings) {
+  const counts = {}
+  for (const f of findings) {
+    counts[f.language] = (counts[f.language] || 0) + 1
+  }
+  return Object.entries(counts)
+    .map(([language, count]) => ({ language, count }))
+    .sort((a, b) => b.count - a.count)
+}

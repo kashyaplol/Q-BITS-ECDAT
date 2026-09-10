@@ -1,16 +1,19 @@
-import './RecentFindings.css'
-import { toRiskLevel, toRelativeLocation, formatConfidence } from '../../utils/risk'
-
-const RISK_LABEL = { high: 'High', medium: 'Medium', low: 'Low', none: 'None' }
+import "./RecentFindings.css"
+import { ListChecks } from "lucide-react"
+import SeverityBadge from "../SeverityBadge/SeverityBadge"
+import { toRiskLevel, toRelativeLocation, formatConfidence } from "../../utils/risk"
 
 function RecentFindings({ findings, limit }) {
   const rows = limit != null ? findings.slice(0, limit) : findings
 
   return (
     <section className="recent-findings">
-      <div className="panel-header">
-        <h2>Recent crypto findings</h2>
-        <span className="panel-header__hint">
+      <div className="recent-findings__header">
+        <div className="recent-findings__heading">
+          <ListChecks size={15} strokeWidth={2} className="recent-findings__heading-icon" />
+          <h2>Recent findings</h2>
+        </div>
+        <span className="recent-findings__hint">
           Latest {rows.length} of {findings.length}
         </span>
       </div>
@@ -40,7 +43,9 @@ function RecentFindings({ findings, limit }) {
                     )}
                   </td>
                   <td>
-                    <span className={`tag tag--${finding.category}`}>{finding.category}</span>
+                    <span className={`recent-findings__tag recent-findings__tag--${finding.category}`}>
+                      {finding.category}
+                    </span>
                   </td>
                   <td>
                     <div className="recent-findings__loc">
@@ -49,16 +54,18 @@ function RecentFindings({ findings, limit }) {
                     </div>
                   </td>
                   <td className="recent-findings__keysize">
-                    {finding.key_size != null ? `${finding.key_size} bits` : '—'}
+                    {finding.key_size != null ? `${finding.key_size}` : "---"}
                   </td>
-                  <td className="recent-findings__conf">{formatConfidence(finding.confidence)}</td>
+                  <td>
+                    <span className="recent-findings__conf">{formatConfidence(finding.confidence)}</span>
+                  </td>
                   <td>
                     <span className="recent-findings__method" title={finding.code_snippet}>
                       {finding.detection_method}
                     </span>
                   </td>
                   <td>
-                    <span className={`risk-badge risk-badge--${risk}`}>{RISK_LABEL[risk]}</span>
+                    <SeverityBadge level={risk} />
                   </td>
                 </tr>
               )
