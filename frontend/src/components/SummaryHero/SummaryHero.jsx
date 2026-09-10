@@ -18,7 +18,7 @@ function SummaryHero({ analysis }) {
           <div className="hero__title-group">
             <h1 className="hero__title">Q-BITS ECDAT</h1>
             <span className="hero__subtitle">
-              Post-Quantum Cryptographic Risk Intelligence
+              Cryptographic discovery and risk assessment
             </span>
           </div>
         </div>

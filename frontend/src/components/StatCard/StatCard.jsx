@@ -5,7 +5,6 @@ function StatCard({ title, value, delta, description, icon: Icon, tone = "accent
 
   return (
     <div className={`stat-card ${toneClass}`}>
-      <div className="stat-card__glow" aria-hidden="true" />
       <div className="stat-card__top">
         <div className="stat-card__icon">
           <Icon size={18} strokeWidth={2} />

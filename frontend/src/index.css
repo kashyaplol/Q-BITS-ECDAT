@@ -5,50 +5,50 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 
-  /* Core surfaces */
-  --bg: #090b10;
-  --bg-sidebar: #0b0e15;
-  --bg-elevated: #0f131c;
-  --bg-surface: #11151f;
-  --bg-surface-hover: #161b28;
-  --bg-input: #0d1018;
+  /* Core surfaces - Restrained dark theme (Vercel/Linear style) */
+  --bg: #000000;
+  --bg-sidebar: #050505;
+  --bg-elevated: #0a0a0a;
+  --bg-surface: #0a0a0a;
+  --bg-surface-hover: #171717;
+  --bg-input: #000000;
 
   /* Borders */
-  --border: #1e2534;
-  --border-strong: #2a3346;
+  --border: #262626;
+  --border-strong: #404040;
 
   /* Text */
-  --text: #9aa3b8;
-  --text-h: #eef1f7;
-  --text-muted: #5f6a7f;
+  --text: #a3a3a3;
+  --text-h: #ededed;
+  --text-muted: #737373;
 
-  /* Brand / accent */
-  --accent: #7c5cff;
-  --accent-soft: rgba(124, 92, 255, 0.16);
-  --accent-border: rgba(124, 92, 255, 0.45);
-  --accent-hover: #9380ff;
+  /* Brand / accent - Neutral */
+  --accent: #ededed;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --accent-border: #404040;
+  --accent-hover: #ffffff;
 
-  /* Semantic */
-  --cyan: #22d3ee;
-  --cyan-soft: rgba(34, 211, 238, 0.14);
-  --green: #34d399;
-  --green-soft: rgba(52, 211, 153, 0.14);
-  --amber: #fbbf24;
-  --amber-soft: rgba(251, 191, 36, 0.14);
-  --red: #f87171;
-  --red-soft: rgba(248, 113, 113, 0.14);
+  /* Semantic - For meaningful status only */
+  --cyan: #38bdf8;
+  --cyan-soft: rgba(56, 189, 248, 0.1);
+  --green: #22c55e;
+  --green-soft: rgba(34, 197, 94, 0.1);
+  --amber: #f59e0b;
+  --amber-soft: rgba(245, 158, 11, 0.1);
+  --red: #ef4444;
+  --red-soft: rgba(239, 68, 68, 0.1);
 
   /* Layout */
-  --sidebar-w: 250px;
-  --header-h: 60px;
+  --sidebar-w: 240px;
+  --header-h: 56px;
 
   /* Typography */
   --mono: "Geist Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
 
-  /* Effects */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 4px 14px rgba(0, 0, 0, 0.25);
+  /* Effects - Removed excessive glows and shadows */
+  --shadow-sm: none;
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-card: none;
 }
 
 @theme inline {

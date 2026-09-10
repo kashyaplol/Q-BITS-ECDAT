@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 const REQUEST_TIMEOUT_MS = 30000
 
 function validateAnalysis(payload) {
@@ -11,16 +11,34 @@ function validateAnalysis(payload) {
   return payload
 }
 
-import MOCK_FINDINGS from '../data/mockFindings';
-
 export async function runAnalysis(path) {
-  // Simulate network delay
-  await new Promise(r => setTimeout(r, 1000))
-  
-  return validateAnalysis({
-    status: 'completed',
-    findings: MOCK_FINDINGS,
-    cbom: { components: MOCK_FINDINGS },
-    risk: { assessments: MOCK_FINDINGS.map(f => ({ ...f, risk_score: 50 })) }
-  })
+  const controller = new AbortController()
+  const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path }),
+      signal: controller.signal,
+    })
+
+    const payload = await response.json().catch(() => null)
+    
+    if (!response.ok) {
+      throw new Error(payload?.detail || `Scan request failed (${response.status}).`)
+    }
+
+    return validateAnalysis(payload)
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('The scan timed out. Check that the backend is available and try again.', { cause: error })
+    }
+    if (error instanceof TypeError) {
+      throw new Error('Cannot reach the backend. Start the API and verify its configured URL.', { cause: error })
+    }
+    throw error
+  } finally {
+    window.clearTimeout(timeout)
+  }
 }

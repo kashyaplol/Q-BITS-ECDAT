@@ -36,8 +36,7 @@
 .analysis-page__panel {
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: var(--shadow-card);
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -52,7 +51,7 @@
 .analysis-page__filter,
 .analysis-page__select {
   border: 1px solid var(--border);
-  border-radius: 7px;
+  border-radius: 5px;
   background: var(--bg-input);
   color: var(--text);
   font-size: 12px;
@@ -202,7 +201,7 @@
   padding: 14px 16px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .analysis-page__summary-value {
