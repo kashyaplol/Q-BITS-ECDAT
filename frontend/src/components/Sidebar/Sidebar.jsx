@@ -12,7 +12,7 @@ const NAV_GROUPS = [
   {
     label: "Analysis",
     items: [
-      { id: "findings", label: "Crypto Findings", badge: 19, icon: ShieldAlert },
+      { id: "findings", label: "Crypto Findings", icon: ShieldAlert },
       { id: "risk", label: "Risk Assessment", icon: Gauge },
       { id: "cbom", label: "CBOM", icon: Boxes },
       { id: "migration", label: "Migration", icon: MoveRight },
@@ -24,7 +24,7 @@ const NAV_GROUPS = [
   },
 ]
 
-function Sidebar({ activeItem, onSelect }) {
+function Sidebar({ activeItem, onSelect, findingCount, scanState }) {
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -55,7 +55,7 @@ function Sidebar({ activeItem, onSelect }) {
                         <Icon size={17} strokeWidth={1.8} />
                       </span>
                       <span className="sidebar__item-label">{item.label}</span>
-                      {item.badge != null && <span className="sidebar__item-badge">{item.badge}</span>}
+                      {item.id === "findings" && findingCount != null && <span className="sidebar__item-badge">{findingCount}</span>}
                     </button>
                   </li>
                 )
@@ -70,7 +70,7 @@ function Sidebar({ activeItem, onSelect }) {
           <span className="sidebar__status-dot" />
           <div className="sidebar__agent-text">
             <span className="sidebar__agent-label">Agent status</span>
-            <span className="sidebar__agent-state">Idle</span>
+            <span className="sidebar__agent-state">{scanState === "scanning" ? "Scanning" : "Idle"}</span>
           </div>
         </div>
       </div>

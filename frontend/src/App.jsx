@@ -10,6 +10,7 @@ import {
   RiskPage,
   ScanPage,
 } from './pages/Analysis/AnalysisPages'
+import { runAnalysis } from './services/analysisApi'
 
 const ROUTES = new Set(['dashboard', 'scan', 'findings', 'risk', 'cbom', 'migration'])
 
@@ -21,6 +22,9 @@ function routeFromHash() {
 function App() {
   const [activeItem, setActiveItem] = useState(routeFromHash)
   const [searchQuery, setSearchQuery] = useState('')
+  const [analysis, setAnalysis] = useState(null)
+  const [scanState, setScanState] = useState('idle')
+  const [scanError, setScanError] = useState('')
 
   useEffect(() => {
     const handleHashChange = () => setActiveItem(routeFromHash())
@@ -39,27 +43,45 @@ function App() {
     handleNavigation('scan')
   }
 
+  const handleScan = async (path) => {
+    if (!path.trim()) {
+      setScanError('Enter a repository path available to the backend.')
+      return
+    }
+    setScanState('scanning')
+    setScanError('')
+    try {
+      const response = await runAnalysis(path.trim())
+      setAnalysis({ ...response, scannedAt: new Date().toISOString() })
+      setScanState('completed')
+      handleNavigation('dashboard')
+    } catch (error) {
+      setScanState('error')
+      setScanError(error.message || 'The scan could not be completed.')
+    }
+  }
+
   function renderPage() {
     switch (activeItem) {
       case 'findings':
-        return <FindingsPage searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        return <FindingsPage analysis={analysis} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       case 'risk':
-        return <RiskPage searchQuery={searchQuery} />
+        return <RiskPage analysis={analysis} searchQuery={searchQuery} />
       case 'cbom':
-        return <CbomPage />
+        return <CbomPage analysis={analysis} />
       case 'migration':
-        return <MigrationPage searchQuery={searchQuery} />
+        return <MigrationPage analysis={analysis} searchQuery={searchQuery} />
       case 'scan':
-        return <ScanPage />
+        return <ScanPage scanState={scanState} error={scanError} onScan={handleScan} />
       case 'dashboard':
       default:
-        return <Dashboard searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        return <Dashboard analysis={analysis} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
     }
   }
 
   return (
     <div className="app">
-      <Sidebar activeItem={activeItem} onSelect={handleNavigation} />
+      <Sidebar activeItem={activeItem} onSelect={handleNavigation} findingCount={analysis?.finding_count} scanState={scanState} />
       <div className="app__main">
         <Header
           onRunScan={handleRunScan}

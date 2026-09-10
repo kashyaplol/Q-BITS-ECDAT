@@ -12,6 +12,8 @@ Public surface:
   roadmap generation.
 """
 
+from backend.risk.cbom_engine import CBOMRiskEngine, assess_risk
+from backend.risk.cbom_models import CBOMRiskReport, CBOMRiskResult
 from backend.risk.engine import RISK_PROFILES, RiskEngine, risk_engine
 from backend.risk.knowledge import KNOWLEDGE_BASE, RiskProfile
 from backend.risk.prioritization import (
@@ -26,6 +28,9 @@ from backend.risk.summary import build_risk_summary, summarize_assessments
 
 __all__ = [
     "KNOWLEDGE_BASE",
+    "CBOMRiskEngine",
+    "CBOMRiskReport",
+    "CBOMRiskResult",
     "POLICY_NOTE",
     "RISK_PROFILES",
     "PrioritizationConfig",
@@ -36,6 +41,7 @@ __all__ = [
     "RoadmapEngine",
     "ScoringConfig",
     "build_risk_summary",
+    "assess_risk",
     "priority_engine",
     "risk_engine",
     "roadmap_engine",

@@ -1,5 +1,5 @@
 import "./Dashboard.css"
-import { Files, ShieldAlert, Braces, Atom } from "lucide-react"
+import { Atom, Braces, Files, ShieldAlert } from "lucide-react"
 import SummaryHero from "../../components/SummaryHero/SummaryHero"
 import StatCard from "../../components/StatCard/StatCard"
 import RiskDistribution from "../../components/RiskDistribution/RiskDistribution"
@@ -7,117 +7,137 @@ import AlgorithmDistribution from "../../components/AlgorithmDistribution/Algori
 import LanguageDistribution from "../../components/LanguageDistribution/LanguageDistribution"
 import PriorityActions from "../../components/PriorityActions/PriorityActions"
 import RecentFindings from "../../components/RecentFindings/RecentFindings"
-import { MOCK_RISK_DISTRIBUTION } from "../../data/mockFindings"
 import {
-  toRiskLevel,
-  isQuantumVulnerable,
   computeAlgorithmDistribution,
   computeLanguageDistribution,
 } from "../../utils/risk"
 
-function computeStats(findings) {
-  const highRisk = findings.filter((f) => toRiskLevel(f) === "high").length
-  const algorithms = new Set(findings.map((f) => f.algorithm)).size
-  const quantumVulnerable = findings.filter(isQuantumVulnerable).length
-  return { highRisk, algorithms, quantumVulnerable }
+const RISK_COLORS = {
+  CRITICAL: "#ef4444",
+  HIGH: "#f97316",
+  MEDIUM: "#f59e0b",
+  LOW: "#22c55e",
 }
 
-function Dashboard({ searchQuery = "", onSearchChange }) {
-  let FINDINGS
-  try {
-    const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
-    FINDINGS = persisted?.findings || []
-  } catch {
-    FINDINGS = []
-  }
+function Dashboard({ analysis, searchQuery = "", onSearchChange }) {
+  const findings = analysis?.findings || []
+  const distribution = analysis?.risk?.risk_distribution || {}
 
-  const stats = computeStats(FINDINGS)
-  const algoDist = computeAlgorithmDistribution(FINDINGS)
-  const langDist = computeLanguageDistribution(FINDINGS)
+  const riskData = ["CRITICAL", "HIGH", "MEDIUM", "LOW"].map(
+    (label) => ({
+      label: label[0] + label.slice(1).toLowerCase(),
+      value: distribution[label] || 0,
+      color: RISK_COLORS[label],
+    })
+  )
 
-  const filteredFindings = searchQuery.trim()
-    ? FINDINGS.filter((f) => {
-        const q = searchQuery.toLowerCase()
-        return (
-          f.algorithm.toLowerCase().includes(q) ||
-          f.file.toLowerCase().includes(q) ||
-          (f.language || "").toLowerCase().includes(q) ||
-          (f.category || "").toLowerCase().includes(q)
+  const assessments = analysis?.risk?.assessments || []
+
+  const enriched = findings.map((finding) => ({
+    ...finding,
+    risk_level:
+      assessments.find(
+        (item) => item.algorithm === finding.algorithm
+      )?.risk_level || null,
+  }))
+
+  const query = searchQuery.trim().toLowerCase()
+
+  const filtered = query
+    ? enriched.filter((finding) =>
+        Object.values(finding).some((value) =>
+          String(value || "")
+            .toLowerCase()
+            .includes(query)
         )
-      })
-    : FINDINGS
+      )
+    : enriched
+
+  const highRisk =
+    (distribution.CRITICAL || 0) +
+    (distribution.HIGH || 0)
+
+  const quantumRelevant = assessments.filter(
+    (item) => item.quantum_relevance === "HIGH"
+  ).length
 
   return (
     <main className="dashboard">
-      <SummaryHero />
+      <SummaryHero analysis={analysis} />
 
-      <section className="dashboard__cards" aria-label="Key statistics">
+      <section
+        className="dashboard__cards"
+        aria-label="Key statistics"
+      >
         <StatCard
           title="Total Findings"
-            value={FINDINGS.length}
-          delta={8.4}
+          value={findings.length}
           icon={Files}
           tone="accent"
-          description="Cryptographic primitives detected across all scanned source files"
+          description="Cryptographic usages detected in the latest scan"
         />
+
         <StatCard
           title="High Risk"
-          value={stats.highRisk}
-          delta={13.6}
+          value={highRisk}
           icon={ShieldAlert}
           tone="red"
-          description="Weak or deprecated algorithms requiring immediate replacement"
+          description="Critical and high-risk CBOM components"
         />
+
         <StatCard
-          title="Algorithms"
-          value={stats.algorithms}
-          delta={4.2}
+          title="Components"
+          value={analysis?.cbom?.components?.length || 0}
           icon={Braces}
           tone="cyan"
-          description="Distinct cryptographic algorithms in use across the codebase"
+          description="Distinct cryptographic components in the CBOM"
         />
+
         <StatCard
-          title="Quantum Vulnerable"
-          value={stats.quantumVulnerable}
-          delta={9.1}
+          title="Quantum Relevant"
+          value={quantumRelevant}
           icon={Atom}
           tone="amber"
-          description="Algorithms at risk from future quantum computing attacks"
+          description="Components requiring PQC migration planning"
         />
       </section>
 
-      <PriorityActions findings={filteredFindings} limit={5} />
+      {analysis ? (
+        <>
+          <PriorityActions
+            assessments={assessments}
+            limit={5}
+          />
 
-      <div className="dashboard__viz-row">
-        <RiskDistribution data={(() => {
-          try {
-            const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
-            const pd = persisted?.summary?.priority_distribution
-            if (pd) {
-              return [
-                { label: 'Critical', value: pd.CRITICAL || 0, color: '#b91c1c' },
-                { label: 'High', value: pd.HIGH || 0, color: '#ef4444' },
-                { label: 'Medium', value: pd.MEDIUM || 0, color: '#f59e0b' },
-                { label: 'Low', value: pd.LOW || 0, color: '#0ea5a4' },
-                { label: 'Immediate', value: pd.IMMEDIATE || 0, color: '#7c2d12' },
-              ]
-            }
-          } catch {
-            /* ignore */
-          }
-          return MOCK_RISK_DISTRIBUTION
-        })()} />
-        <AlgorithmDistribution data={algoDist} />
-        <LanguageDistribution data={langDist} />
-      </div>
+          <div className="dashboard__viz-row">
+            <RiskDistribution
+              data={riskData}
+              total={analysis.risk?.assets_assessed || 0}
+            />
 
-      <RecentFindings
-        findings={filteredFindings}
-        totalCount={FINDINGS.length}
-        limit={8}
-        searchQuery={searchQuery}
-        onSearchChange={onSearchChange}
-      />
+            <AlgorithmDistribution
+              data={computeAlgorithmDistribution(findings)}
+            />
+
+            <LanguageDistribution
+              data={computeLanguageDistribution(findings)}
+            />
+          </div>
+
+          <RecentFindings
+            findings={filtered}
+            totalCount={findings.length}
+            limit={8}
+            searchQuery={searchQuery}
+            onSearchChange={onSearchChange}
+          />
+        </>
+      ) : (
+        <section className="dashboard__empty">
+          Run a scan to display real findings, CBOM
+          inventory, and risk results.
+        </section>
+      )}
     </main>
   )
 }
