@@ -1,6 +1,6 @@
 import "./SummaryHero.css"
 import { Radar, CheckCircle2, FileSearch, Clock } from "lucide-react"
-import MOCK_SUMMARY from "../../data/mockFindings"
+import { MOCK_SUMMARY } from "../../data/mockFindings"
 import { timeAgo, formatTimestamp } from "../../utils/risk"
 
 function SummaryHero() {
