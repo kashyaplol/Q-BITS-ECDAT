@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import { Boxes, ClipboardList, Gauge, MoveRight, ScanSearch } from "lucide-react"
 import SeverityBadge from "../../components/SeverityBadge/SeverityBadge"
 import { formatConfidence, toRelativeLocation } from "../../utils/risk"
@@ -36,28 +36,22 @@ function FindingDetail({ finding }) {
   if (!finding) return null
 
   const details = [
-    ["Source", toRelativeLocation(finding)],
-    ["Language", finding.language],
+    ["Algorithm", finding.algorithm],
     ["Category", finding.category],
-    [
-      "Key size",
-      finding.key_size == null
-        ? "Not reported"
-        : `${finding.key_size}-bit`,
-    ],
-    ["Library", finding.library || "Not reported"],
-    ["Detection", finding.detection_method],
+    ["File", finding.file],
+    ["Line", finding.line],
+    ["Column", finding.column],
+    ["Language", finding.language],
     ["Confidence", formatConfidence(finding.confidence)],
-    ["Usage context", finding.usage_context || "Not reported"],
-    ["Code", finding.code_snippet || "Not reported"],
-  ]
+    ["Detection", finding.detection_method],
+    ["Library", finding.library],
+    ["Context", finding.usage_context],
+    ["Symbol", finding.symbol_name],
+    ["Arguments", finding.arguments ? JSON.stringify(finding.arguments) : null],
+  ].filter(([, value]) => value != null && value !== "")
 
   return (
-    <div className="analysis-page__detail">
-      <h2 className="analysis-page__detail-title">
-        {finding.algorithm} finding details
-      </h2>
-
+    <div className="analysis-page__finding-detail">
       <div className="analysis-page__detail-grid">
         {details.map(([label, value]) => (
           <div className="analysis-page__detail-item" key={label}>
@@ -66,6 +60,14 @@ function FindingDetail({ finding }) {
           </div>
         ))}
       </div>
+      {finding.code_snippet && (
+        <div className="analysis-page__snippet">
+          <div className="analysis-page__snippet-header">Code snippet</div>
+          <pre className="analysis-page__snippet-content">
+            <code>{finding.code_snippet}</code>
+          </pre>
+        </div>
+      )}
     </div>
   )
 }
@@ -86,6 +88,7 @@ export function FindingsPage({
 }) {
   const [category, setCategory] = useState("all")
   const [risk, setRisk] = useState("all")
+  const [langFilter, setLangFilter] = useState("all")
   const [selectedId, setSelectedId] = useState(null)
 
   if (!analysis) return <Empty />
@@ -99,6 +102,9 @@ export function FindingsPage({
 
   const categories = [
     ...new Set(findings.map((item) => item.category).filter(Boolean)),
+  ]
+  const languages = [
+    ...new Set(findings.map((item) => item.language).filter(Boolean)),
   ]
 
   const query = searchQuery.trim().toLowerCase()
@@ -117,18 +123,19 @@ export function FindingsPage({
         )) &&
       (category === "all" || item.category === category) &&
       (risk === "all" ||
-        item.risk_level.toLowerCase() === risk)
+        item.risk_level.toLowerCase() === risk) &&
+      (langFilter === "all" || item.language === langFilter)
   )
 
-  const selected = findings.find((item) => item.id === selectedId)
+  const repoName = analysis.scanned_path ? analysis.scanned_path.split(/[/\\]/).pop() || analysis.scanned_path : "Unknown repository"
 
   return (
     <main className="analysis-page">
       <PageIntro
         icon={ClipboardList}
-        title="Crypto findings"
-        description="Cryptographic usages returned by the latest backend scan."
-        meta={`${visible.length} of ${findings.length} findings`}
+        title="Findings"
+        description="Cryptographic usages detected during the latest repository scan."
+        meta={`${repoName} • Showing ${visible.length} of ${findings.length} findings`}
       />
 
       <section className="analysis-page__panel">
@@ -146,6 +153,22 @@ export function FindingsPage({
 
           <select
             className="analysis-page__select"
+            value={risk}
+            onChange={(event) => setRisk(event.target.value)}
+            aria-label="Filter by risk"
+          >
+            <option value="all">All risks</option>
+            {["critical", "high", "medium", "low"].map(
+              (item) => (
+                <option key={item} value={item}>
+                  {item[0].toUpperCase() + item.slice(1)}
+                </option>
+              )
+            )}
+          </select>
+
+          <select
+            className="analysis-page__select"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
             aria-label="Filter by category"
@@ -160,29 +183,27 @@ export function FindingsPage({
 
           <select
             className="analysis-page__select"
-            value={risk}
-            onChange={(event) => setRisk(event.target.value)}
-            aria-label="Filter by risk"
+            value={langFilter}
+            onChange={(event) => setLangFilter(event.target.value)}
+            aria-label="Filter by language"
           >
-            <option value="all">All risk</option>
-            {["critical", "high", "medium", "low"].map(
-              (item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              )
-            )}
+            <option value="all">All languages</option>
+            {languages.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="analysis-page__table-wrap">
-          <table className="analysis-page__table">
+          <table className="analysis-page__table analysis-page__table--findings">
             <thead>
               <tr>
+                <th>Severity</th>
                 <th>Algorithm</th>
                 <th>Location</th>
                 <th>Language</th>
-                <th>Key size</th>
                 <th>Confidence</th>
                 <th>Detection</th>
                 <th />
@@ -190,59 +211,61 @@ export function FindingsPage({
             </thead>
 
             <tbody>
-              {visible.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <span className="analysis-page__mono">
-                      {item.algorithm}
-                    </span>
-                    <span className="analysis-page__subtext">
-                      {item.category}
-                    </span>
-                  </td>
-
-                  <td className="analysis-page__file">
-                    {toRelativeLocation(item)}
-                  </td>
-
-                  <td>{item.language}</td>
-
-                  <td>
-                    {item.key_size == null
-                      ? "---"
-                      : `${item.key_size}-bit`}
-                  </td>
-
-                  <td>
-                    {formatConfidence(item.confidence)}
-                  </td>
-
-                  <td>{item.detection_method}</td>
-
-                  <td>
-                    <button
-                      className="analysis-page__button"
-                      type="button"
-                      onClick={() => setSelectedId(item.id)}
-                    >
-                      {selectedId === item.id
-                        ? "Selected"
-                        : "Details"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {visible.map((item) => {
+                const isExpanded = selectedId === item.id
+                return (
+                  <React.Fragment key={item.id}>
+                    <tr onClick={() => setSelectedId(isExpanded ? null : item.id)} className={isExpanded ? 'is-expanded' : ''}>
+                      <td>
+                        <SeverityBadge level={item.risk_level.toLowerCase()} />
+                      </td>
+                      <td>
+                        <span className="analysis-page__mono">
+                          {item.algorithm}
+                        </span>
+                        <span className="analysis-page__subtext">
+                          {item.category}
+                        </span>
+                      </td>
+                      <td className="analysis-page__file">
+                        {toRelativeLocation(item)}
+                      </td>
+                      <td>{item.language}</td>
+                      <td>
+                        {formatConfidence(item.confidence)}
+                      </td>
+                      <td>{item.detection_method}</td>
+                      <td className="analysis-page__act">
+                        <button
+                          className="analysis-page__button"
+                          type="button"
+                          aria-expanded={isExpanded}
+                        >
+                          {isExpanded ? "Close" : "View"}
+                        </button>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="analysis-page__row-detail">
+                        <td colSpan={7}>
+                          <FindingDetail finding={item} />
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )
+              })}
             </tbody>
           </table>
 
           {!visible.length && (
             <div className="analysis-page__empty">
-              No findings match the selected filters.
+              <ClipboardList size={32} strokeWidth={1.5} className="analysis-page__empty-icon" />
+              <h3 className="analysis-page__empty-title">No findings match</h3>
+              <p className="analysis-page__empty-message">Try adjusting your filters or search query.</p>
             </div>
           )}
         </div>
-
-        <FindingDetail finding={selected} />
       </section>
     </main>
   )
