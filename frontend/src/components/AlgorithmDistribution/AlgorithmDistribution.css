@@ -1,0 +1,58 @@
+.algo-dist {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+
+.algo-dist__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.algo-dist__row {
+  display: grid;
+  grid-template-columns: 100px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.algo-dist__label {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.algo-dist__track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.algo-dist__fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+  opacity: 0.7;
+  transition: width 0.3s ease;
+}
+
+.algo-dist__count {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-h);
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .algo-dist__row {
+    grid-template-columns: 80px 1fr 24px;
+  }
+}
