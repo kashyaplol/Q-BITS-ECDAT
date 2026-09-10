@@ -12,8 +12,10 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.health import router as health_router
+from backend.app.api.scan import router as scan_router
 from backend.app.api.v1 import api_router
 from backend.app.core.config import settings
 from backend.app.core.logging import configure_logging, get_logger
@@ -40,6 +42,19 @@ def create_app() -> FastAPI:
         debug=settings.debug,
         lifespan=lifespan,
     )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://127.0.0.1:5173",
+            "http://localhost:5173",
+        ],
+        allow_credentials=True,
+        allow_methods=["GET", "POST"],
+        allow_headers=["*"],
+    )
+
+    app.include_router(scan_router)
 
     # Root-level health endpoint: GET /health
     app.include_router(health_router)

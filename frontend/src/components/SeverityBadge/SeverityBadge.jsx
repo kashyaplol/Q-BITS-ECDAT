@@ -1,6 +1,7 @@
 import "./SeverityBadge.css"
 
 const SEVERITY_META = {
+  critical: { label: "Critical", class: "severity-badge--high" },
   high: { label: "High", class: "severity-badge--high" },
   medium: { label: "Medium", class: "severity-badge--medium" },
   low: { label: "Low", class: "severity-badge--low" },

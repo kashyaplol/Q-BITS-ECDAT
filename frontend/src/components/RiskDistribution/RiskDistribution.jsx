@@ -20,7 +20,7 @@ function RiskDistribution({ data, total }) {
   const totalValue = data.reduce((sum, item) => sum + item.value, 0)
   const withPct = data.map((item) => ({
     ...item,
-    percentage: Math.round((item.value / totalValue) * 100),
+    percentage: totalValue ? Math.round((item.value / totalValue) * 100) : 0,
   }))
 
   return (

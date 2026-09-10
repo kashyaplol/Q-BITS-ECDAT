@@ -15,6 +15,7 @@ const SHORT_RSA = (finding) =>
   finding.key_size < 2048
 
 export function toRiskLevel(finding) {
+  if (finding.risk_level) return finding.risk_level.toLowerCase()
   if (
     WEAK_HASHES.has(finding.algorithm) ||
     WEAK_SYMMETRIC.has(finding.algorithm) ||

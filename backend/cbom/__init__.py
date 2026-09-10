@@ -1,11 +1,22 @@
-"""CBOM (Cryptographic Bill of Materials) generation module.
+"""Public CBOM generation API for scanner ``CryptoFinding`` objects."""
 
-Exposes the ``CBOMGenerator``::
+from .generator import CBOMGenerator, generate_cbom
+from .models import (
+    CBOM,
+    CBOMAsset,
+    CBOMComponent,
+    CBOMCryptographicInformation,
+    CBOMMetadata,
+    CBOMSourceReference,
+)
 
-    from backend.cbom import CBOMGenerator
-    bom = CBOMGenerator(project="My Project").generate(scan_result)
-"""
-
-from .generator import CBOMGenerator  # noqa: F401
-
-__all__ = ["CBOMGenerator"]
+__all__ = [
+    "CBOM",
+    "CBOMAsset",
+    "CBOMComponent",
+    "CBOMCryptographicInformation",
+    "CBOMGenerator",
+    "CBOMMetadata",
+    "CBOMSourceReference",
+    "generate_cbom",
+]

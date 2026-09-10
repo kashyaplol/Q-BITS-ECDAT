@@ -1,11 +1,11 @@
 import "./SummaryHero.css"
 import { Radar, CheckCircle2, FileSearch, Clock } from "lucide-react"
-import { MOCK_SUMMARY } from "../../data/mockFindings"
 import { timeAgo, formatTimestamp } from "../../utils/risk"
 
-function SummaryHero() {
-  const relTime = timeAgo(MOCK_SUMMARY.lastScan)
-  const exactTime = formatTimestamp(MOCK_SUMMARY.lastScan)
+function SummaryHero({ analysis }) {
+  const scannedAt = analysis?.scannedAt
+  const relTime = scannedAt ? timeAgo(scannedAt) : "Not scanned"
+  const exactTime = scannedAt ? formatTimestamp(scannedAt) : ""
 
   return (
     <section className="hero">
@@ -23,12 +23,12 @@ function SummaryHero() {
         <div className="hero__metrics">
           <div className="hero__metric">
             <FileSearch size={14} strokeWidth={2} className="hero__metric-icon" />
-            <span className="hero__metric-value">{MOCK_SUMMARY.scannedFiles.toLocaleString()}</span>
+            <span className="hero__metric-value">{(analysis?.files_scanned ?? 0).toLocaleString()}</span>
             <span className="hero__metric-label">Files scanned</span>
           </div>
           <div className="hero__metric-sep" />
           <div className="hero__metric">
-            <span className="hero__metric-value hero__metric-value--accent">{MOCK_SUMMARY.totalFindings}</span>
+            <span className="hero__metric-value hero__metric-value--accent">{analysis?.finding_count ?? 0}</span>
             <span className="hero__metric-label">Findings</span>
           </div>
           <div className="hero__metric-sep" />
@@ -40,7 +40,7 @@ function SummaryHero() {
           <div className="hero__metric-sep" />
           <div className="hero__metric">
             <CheckCircle2 size={14} strokeWidth={2} className="hero__metric-icon hero__metric-icon--ok" />
-            <span className="hero__metric-value hero__metric-value--ok">Completed</span>
+            <span className="hero__metric-value hero__metric-value--ok">{analysis ? "Completed" : "Awaiting scan"}</span>
             <span className="hero__metric-label">Status</span>
           </div>
         </div>
