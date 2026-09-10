@@ -1,6 +1,6 @@
-from app.services.analysis_service import UnconfiguredAnalysisService
-from app.services.interfaces import AnalysisService
+from backend.app.services.analysis import analysis_service
+from backend.app.services.analysis import AnalysisService
 
 
 def get_analysis_service() -> AnalysisService:
-    return UnconfiguredAnalysisService()
+    return analysis_service

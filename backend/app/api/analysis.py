@@ -20,7 +20,7 @@ import os
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from backend.risk import priority_engine, risk_engine, roadmap_engine
 
@@ -43,7 +43,14 @@ svc = analysis_service
 class ScanRequest(BaseModel):
     """Payload for POST /api/v1/scan."""
 
-    path: str = Field(description="Filesystem path of the project to scan")
+    path: str = Field(min_length=1, description="Filesystem path of the project to scan")
+
+    @field_validator("path")
+    @classmethod
+    def validate_path(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("path must not be empty or whitespace-only")
+        return value
 
 
 class ScanResponse(BaseModel):

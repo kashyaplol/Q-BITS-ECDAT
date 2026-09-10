@@ -13,6 +13,14 @@ async function request(path, options = {}) {
   return resp.json()
 }
 
+export async function getHealth() {
+  return request(`/health`)
+}
+
+export async function getInfo() {
+  return request(`/api/v1/info`)
+}
+
 export async function runScan(path) {
   return request(`/api/v1/scan`, { method: "POST", body: JSON.stringify({ path }) })
 }
@@ -25,8 +33,12 @@ export async function getRisks() {
   return request(`/api/v1/risk`)
 }
 
+export async function getRiskSummary() {
+  return request(`/api/v1/risk/summary`)
+}
+
 export async function getDashboardSummary() {
   return request(`/api/v1/dashboard/summary`)
 }
 
-export default { runScan, getCbom, getRisks, getDashboardSummary }
+export default { getHealth, getInfo, runScan, getCbom, getRisks, getRiskSummary, getDashboardSummary }

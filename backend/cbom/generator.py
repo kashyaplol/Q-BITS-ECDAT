@@ -16,7 +16,7 @@ from backend.app.models import (
     RiskLevel,
     ScanResult,
 )
-from backend.risk import risk_engine as default_risk_engine
+from backend.risk.engine import risk_engine as default_risk_engine
 from backend.scanners.source.models import CryptoFinding
 
 from .models import (
