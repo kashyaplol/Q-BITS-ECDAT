@@ -1,11 +1,17 @@
 import "./Header.css"
 import { Search, Play, CircleHelp } from "lucide-react"
-import { MOCK_SUMMARY } from "../../data/mockFindings"
 import { timeAgo, formatTimestamp } from "../../utils/risk"
 
 function Header({ onRunScan, searchQuery, onSearchChange }) {
-  const relTime = timeAgo(MOCK_SUMMARY.lastScan)
-  const exactTime = formatTimestamp(MOCK_SUMMARY.lastScan)
+  let lastScan
+  try {
+    const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
+    lastScan = persisted?.scanned_at || null
+  } catch {
+    lastScan = null
+  }
+  const relTime = lastScan ? timeAgo(lastScan) : "never"
+  const exactTime = lastScan ? formatTimestamp(lastScan) : "-"
 
   return (
     <header className="header">

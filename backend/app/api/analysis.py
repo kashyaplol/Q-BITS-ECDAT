@@ -50,9 +50,11 @@ class ScanResponse(BaseModel):
     """Body returned by POST /api/v1/scan (follows the example contract)."""
 
     scanned_path: str
+    scanned_at: str
     files_scanned: int
     crypto_assets_found: int
     algorithm_counts: dict[str, int]
+    findings: list[object]
     cbom: object
     risks: object
     summary: object
@@ -95,9 +97,11 @@ async def run_scan(payload: ScanRequest) -> ScanResponse:
     scan = result["scan"]
     return ScanResponse(
         scanned_path=scan.scanned_path,
+        scanned_at=scan.scanned_at.isoformat(),
         files_scanned=scan.files_scanned,
         crypto_assets_found=len(scan.assets),
         algorithm_counts=scan.algorithm_counts,
+        findings=[a.model_dump(mode="json") for a in scan.assets],
         cbom=result["cbom"].model_dump(mode="json"),
         risks=[r.model_dump(mode="json") for r in result["risks"]],
         summary=result["summary"],
