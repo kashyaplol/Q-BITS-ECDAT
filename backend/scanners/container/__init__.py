@@ -1,1 +1,1 @@
-"""Container scanner components."""
+"""Container image cryptographic scanner."""

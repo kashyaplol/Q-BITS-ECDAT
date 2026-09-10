@@ -1,1 +1,1 @@
-"""Binary scanner components."""
+"""Binary/executable cryptographic scanner."""
