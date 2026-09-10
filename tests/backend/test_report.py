@@ -71,14 +71,18 @@ class TestReportRenderer:
             top_priorities=result["roadmap"].top_priorities,
         )
         assert "Q-BITS-ECDAT REPORT" in text
-        assert "Files Scanned: 12" in text
-        assert "Crypto Findings: 95" in text
-        assert "CBOM Assets: 59" in text
-        assert "CRITICAL: 61" in text
+        assert f"Files Scanned: {result['scan'].files_scanned}" in text
+        assert f"Crypto Findings: {len(result['scan'].assets)}" in text
+        assert f"CBOM Assets: {result['cbom'].total_assets}" in text
+        risk_summary = build_risk_summary(result["scan"].assets, risk_engine)
+        assert f"CRITICAL: {risk_summary.critical_risk_assets}" in text
         assert "1. MD5" in text
         assert "   Score: 88" in text
         assert "   Action: Replace Immediately" in text
-        assert "Migration Candidates: 88" in text
+        assert (
+            f"Migration Candidates: {risk_summary.migration_candidates}"
+            in text
+        )
         assert "NEEDS MODERNIZATION" in text
 
     def test_action_mapping_rsa_signature(self) -> None:

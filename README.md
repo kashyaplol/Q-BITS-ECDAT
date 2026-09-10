@@ -91,6 +91,24 @@ Your API will be available at **http://127.0.0.1:8000**
 | Swagger UI (docs)   | http://127.0.0.1:8000/docs            |
 | ReDoc               | http://127.0.0.1:8000/redoc           |
 
+## Running the Frontend
+
+From the project root:
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend runs on **http://localhost:3000** and proxies `/api` requests to
+`http://127.0.0.1:8000` by default (configured in `frontend/vite.config.js`).
+
+If your backend runs on another port, set:
+
+```bash
+VITE_API_TARGET=http://127.0.0.1:8001 npm run dev
+```
+
 ### Configuration via environment variables
 
 All settings can be overridden with `ECDAT_`-prefixed env vars, e.g.:

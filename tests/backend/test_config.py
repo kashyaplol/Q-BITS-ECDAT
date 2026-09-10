@@ -1,6 +1,6 @@
-from app.core.config import settings
+from backend.app.core.config import settings
 
 
 def test_settings_defaults() -> None:
-    assert settings.app_name == "ECDAT"
-    assert settings.api_v1_prefix == "/api/v1"
+    assert settings.project_name == "Q-BITS-ECDAT"
+    assert settings.port == 8000
