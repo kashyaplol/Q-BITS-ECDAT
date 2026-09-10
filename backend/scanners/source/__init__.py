@@ -1,19 +1,15 @@
 """Source code cryptographic scanner.
 
-Exposes the ``SourceCodeScanner`` class and the rule definitions::
+Exposes both scanner APIs and related rule helpers::
 
-    from backend.scanners.source import SourceCodeScanner
-    result = SourceCodeScanner().scan_directory("path/to/code")
-
-For Python files the scanner runs a hybrid regex + AST pipeline; the
-AST components (``PythonAstScanner``) and the fuse logic
-(``normalize_findings``) are also importable directly.
+    from backend.scanners.source import SourceCodeScanner, CryptoScanner
 """
 
 from .ast_scanner import PythonAstScanner  # noqa: F401
+from .models import CryptoAsset, CryptoFinding  # noqa: F401
 from .normalize import normalize_findings  # noqa: F401
 from .rules import ALL_RULES, KEYWORD_RULES, LIBRARY_RULES, DetectionRule  # noqa: F401
-from .scanner import SourceCodeScanner  # noqa: F401
+from .scanner import CryptoScanner, SourceCodeScanner  # noqa: F401
 
 __all__ = [
     "ALL_RULES",
@@ -23,4 +19,7 @@ __all__ = [
     "PythonAstScanner",
     "SourceCodeScanner",
     "normalize_findings",
+    "CryptoAsset",
+    "CryptoFinding",
+    "CryptoScanner",
 ]
