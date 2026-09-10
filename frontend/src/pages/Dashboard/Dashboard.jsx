@@ -7,7 +7,7 @@ import AlgorithmDistribution from "../../components/AlgorithmDistribution/Algori
 import LanguageDistribution from "../../components/LanguageDistribution/LanguageDistribution"
 import PriorityActions from "../../components/PriorityActions/PriorityActions"
 import RecentFindings from "../../components/RecentFindings/RecentFindings"
-import MOCK_FINDINGS, { MOCK_RISK_DISTRIBUTION } from "../../data/mockFindings"
+import { MOCK_RISK_DISTRIBUTION } from "../../data/mockFindings"
 import {
   toRiskLevel,
   isQuantumVulnerable,
@@ -23,21 +23,29 @@ function computeStats(findings) {
 }
 
 function Dashboard({ searchQuery = "", onSearchChange }) {
-  const stats = computeStats(MOCK_FINDINGS)
-  const algoDist = computeAlgorithmDistribution(MOCK_FINDINGS)
-  const langDist = computeLanguageDistribution(MOCK_FINDINGS)
+  let FINDINGS
+  try {
+    const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
+    FINDINGS = persisted?.findings || []
+  } catch {
+    FINDINGS = []
+  }
+
+  const stats = computeStats(FINDINGS)
+  const algoDist = computeAlgorithmDistribution(FINDINGS)
+  const langDist = computeLanguageDistribution(FINDINGS)
 
   const filteredFindings = searchQuery.trim()
-    ? MOCK_FINDINGS.filter((f) => {
+    ? FINDINGS.filter((f) => {
         const q = searchQuery.toLowerCase()
         return (
           f.algorithm.toLowerCase().includes(q) ||
           f.file.toLowerCase().includes(q) ||
-          f.language.toLowerCase().includes(q) ||
-          f.category.toLowerCase().includes(q)
+          (f.language || "").toLowerCase().includes(q) ||
+          (f.category || "").toLowerCase().includes(q)
         )
       })
-    : MOCK_FINDINGS
+    : FINDINGS
 
   return (
     <main className="dashboard">
@@ -46,7 +54,7 @@ function Dashboard({ searchQuery = "", onSearchChange }) {
       <section className="dashboard__cards" aria-label="Key statistics">
         <StatCard
           title="Total Findings"
-          value={MOCK_FINDINGS.length}
+            value={FINDINGS.length}
           delta={8.4}
           icon={Files}
           tone="accent"
@@ -81,14 +89,31 @@ function Dashboard({ searchQuery = "", onSearchChange }) {
       <PriorityActions findings={filteredFindings} limit={5} />
 
       <div className="dashboard__viz-row">
-        <RiskDistribution data={MOCK_RISK_DISTRIBUTION} />
+        <RiskDistribution data={(() => {
+          try {
+            const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
+            const pd = persisted?.summary?.priority_distribution
+            if (pd) {
+              return [
+                { label: 'Critical', value: pd.CRITICAL || 0, color: '#b91c1c' },
+                { label: 'High', value: pd.HIGH || 0, color: '#ef4444' },
+                { label: 'Medium', value: pd.MEDIUM || 0, color: '#f59e0b' },
+                { label: 'Low', value: pd.LOW || 0, color: '#0ea5a4' },
+                { label: 'Immediate', value: pd.IMMEDIATE || 0, color: '#7c2d12' },
+              ]
+            }
+          } catch {
+            /* ignore */
+          }
+          return MOCK_RISK_DISTRIBUTION
+        })()} />
         <AlgorithmDistribution data={algoDist} />
         <LanguageDistribution data={langDist} />
       </div>
 
       <RecentFindings
         findings={filteredFindings}
-        totalCount={MOCK_FINDINGS.length}
+        totalCount={FINDINGS.length}
         limit={8}
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}

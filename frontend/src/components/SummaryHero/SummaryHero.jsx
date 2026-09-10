@@ -1,11 +1,23 @@
 import "./SummaryHero.css"
 import { Radar, CheckCircle2, FileSearch, Clock } from "lucide-react"
-import { MOCK_SUMMARY } from "../../data/mockFindings"
 import { timeAgo, formatTimestamp } from "../../utils/risk"
 
 function SummaryHero() {
-  const relTime = timeAgo(MOCK_SUMMARY.lastScan)
-  const exactTime = formatTimestamp(MOCK_SUMMARY.lastScan)
+  let scannedFiles = 0
+  let totalFindings = 0
+  let lastScan = null
+  try {
+    const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
+    if (persisted) {
+      scannedFiles = persisted.files_scanned || 0
+      totalFindings = persisted.crypto_assets_found || (persisted.findings || []).length
+      lastScan = persisted.scanned_at || null
+    }
+  } catch {
+    /* ignore */
+  }
+  const relTime = lastScan ? timeAgo(lastScan) : "never"
+  const exactTime = lastScan ? formatTimestamp(lastScan) : "-"
 
   return (
     <section className="hero">
@@ -23,12 +35,12 @@ function SummaryHero() {
         <div className="hero__metrics">
           <div className="hero__metric">
             <FileSearch size={14} strokeWidth={2} className="hero__metric-icon" />
-            <span className="hero__metric-value">{MOCK_SUMMARY.scannedFiles.toLocaleString()}</span>
+            <span className="hero__metric-value">{scannedFiles.toLocaleString()}</span>
             <span className="hero__metric-label">Files scanned</span>
           </div>
           <div className="hero__metric-sep" />
           <div className="hero__metric">
-            <span className="hero__metric-value hero__metric-value--accent">{MOCK_SUMMARY.totalFindings}</span>
+            <span className="hero__metric-value hero__metric-value--accent">{totalFindings}</span>
             <span className="hero__metric-label">Findings</span>
           </div>
           <div className="hero__metric-sep" />

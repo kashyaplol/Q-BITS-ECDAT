@@ -10,6 +10,18 @@ import {
 } from "../../utils/risk"
 import "./AnalysisPages.css"
 
+// Use a persisted latest analysis (from POST /api/v1/scan) when available.
+// Falls back to the demo mock findings bundled with the frontend.
+const _persistedAnalysis = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("qbits_latest_analysis"))
+  } catch {
+    return null
+  }
+})()
+const LIVE_FINDINGS = _persistedAnalysis?.findings || MOCK_FINDINGS
+
+
 function PageIntro({ icon: Icon, title, description, meta }) {
   return (
     <div className="analysis-page__intro">
@@ -70,13 +82,13 @@ export function FindingsPage({ searchQuery = "", onSearchChange }) {
   const [category, setCategory] = useState("all")
   const [risk, setRisk] = useState("all")
   const [selectedId, setSelectedId] = useState(null)
-  const categories = [...new Set(MOCK_FINDINGS.map((finding) => finding.category))]
-  const findings = filterFindings(MOCK_FINDINGS, searchQuery, category, risk)
-  const selected = MOCK_FINDINGS.find((finding) => finding.id === selectedId)
+  const categories = [...new Set(LIVE_FINDINGS.map((finding) => finding.category))]
+  const findings = filterFindings(LIVE_FINDINGS, searchQuery, category, risk)
+  const selected = LIVE_FINDINGS.find((finding) => finding.id === selectedId)
 
   return (
     <main className="analysis-page">
-      <PageIntro icon={ClipboardList} title="Crypto findings" description="Inspect every cryptographic usage detected in the demo scan." meta={`${findings.length} of ${MOCK_FINDINGS.length} findings`} />
+      <PageIntro icon={ClipboardList} title="Crypto findings" description="Inspect every cryptographic usage detected in the demo scan." meta={`${findings.length} of ${LIVE_FINDINGS.length} findings`} />
       <section className="analysis-page__panel">
         <div className="analysis-page__toolbar">
           <input className="analysis-page__filter" type="search" value={searchQuery} onChange={(event) => onSearchChange?.(event.target.value)} placeholder="Search algorithm, file, language..." aria-label="Filter findings" />
@@ -123,12 +135,27 @@ const RISK_CONTEXT = {
 }
 
 export function RiskPage({ searchQuery = "" }) {
-  const findings = filterFindings(MOCK_FINDINGS, searchQuery, "all", "all").sort((a, b) => getRiskPriority(a) - getRiskPriority(b))
+  const findings = filterFindings(LIVE_FINDINGS, searchQuery, "all", "all").sort((a, b) => getRiskPriority(a) - getRiskPriority(b))
   return (
     <main className="analysis-page">
       <PageIntro icon={Gauge} title="Risk assessment" description="Review the demo risk classification and migration priority for detected assets." meta="Demo assessment" />
       <div className="analysis-page__cards">
-        {MOCK_RISK_DISTRIBUTION.map((item) => <div className="analysis-page__summary-card" key={item.label}><div className="analysis-page__summary-value" style={{ color: item.color }}>{item.value}</div><div className="analysis-page__summary-label">{item.label} risk findings</div></div>)}
+        {(() => {
+            try {
+              const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
+              const pd = persisted?.summary?.priority_distribution
+              if (pd) {
+                const items = [
+                  { label: 'Critical', value: pd.CRITICAL || 0, color: '#b91c1c' },
+                  { label: 'High', value: pd.HIGH || 0, color: '#ef4444' },
+                  { label: 'Medium', value: pd.MEDIUM || 0, color: '#f59e0b' },
+                  { label: 'Low', value: pd.LOW || 0, color: '#0ea5a4' },
+                ]
+                return items.map((item) => <div className="analysis-page__summary-card" key={item.label}><div className="analysis-page__summary-value" style={{ color: item.color }}>{item.value}</div><div className="analysis-page__summary-label">{item.label} risk findings</div></div>)
+              }
+            } catch { /* ignore */ }
+            return MOCK_RISK_DISTRIBUTION.map((item) => <div className="analysis-page__summary-card" key={item.label}><div className="analysis-page__summary-value" style={{ color: item.color }}>{item.value}</div><div className="analysis-page__summary-label">{item.label} risk findings</div></div>)
+          })()}
       </div>
       <section className="analysis-page__panel">
         <div className="analysis-page__table-wrap">
@@ -143,7 +170,7 @@ export function RiskPage({ searchQuery = "" }) {
 }
 
 export function CbomPage() {
-  const inventory = useMemo(() => Object.entries(MOCK_FINDINGS.reduce((result, finding) => {
+  const inventory = useMemo(() => Object.entries(LIVE_FINDINGS.reduce((result, finding) => {
     const current = result[finding.algorithm] || { algorithm: finding.algorithm, count: 0, keySizes: new Set(), files: new Set(), categories: new Set() }
     current.count += 1
     if (finding.key_size != null) current.keySizes.add(finding.key_size)
@@ -176,7 +203,44 @@ const MIGRATION_DIRECTION = {
 }
 
 export function MigrationPage({ searchQuery = "" }) {
-  const findings = filterFindings(MOCK_FINDINGS, searchQuery, "all", "all").sort((a, b) => getRiskPriority(a) - getRiskPriority(b))
+  const topPriorities = (() => {
+    try {
+      const persisted = JSON.parse(localStorage.getItem("qbits_latest_analysis"))
+      return persisted?.summary?.top_migration_priorities || null
+    } catch {
+      return null
+    }
+  })()
+
+  if (topPriorities && topPriorities.length) {
+    return (
+      <main className="analysis-page">
+        <PageIntro icon={MoveRight} title="Migration priorities" description="Migration priorities from the backend roadmap." meta={`${topPriorities.length} assets`} />
+        <section className="analysis-page__panel">
+          <div className="analysis-page__table-wrap">
+            <table className="analysis-page__table">
+              <thead>
+                <tr><th>Algorithm</th><th>Location</th><th>Score</th><th>Priority</th><th>Strategy</th></tr>
+              </thead>
+              <tbody>
+                {topPriorities.map((p, idx) => (
+                  <tr key={idx}>
+                    <td className="analysis-page__mono">{p.algorithm}</td>
+                    <td><span className="analysis-page__file">{p.file_path}</span></td>
+                    <td>{p.priority_score}</td>
+                    <td>{p.priority_level}</td>
+                    <td>{p.migration_strategy || p.migration_strategy}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  const findings = filterFindings(LIVE_FINDINGS, searchQuery, "all", "all").sort((a, b) => getRiskPriority(a) - getRiskPriority(b))
   return (
     <main className="analysis-page">
       <PageIntro icon={MoveRight} title="Migration priorities" description="Track suggested migration direction for assets identified in the demo scan." meta={`${findings.length} assets`} />
@@ -187,6 +251,44 @@ export function MigrationPage({ searchQuery = "" }) {
   )
 }
 
+import { runScan } from "../../utils/api"
+
 export function ScanPage() {
-  return <main className="analysis-page"><PageIntro icon={ScanSearch} title="New scan" description="The scan workflow is ready for a backend contract, but remains demo-only for now." meta="Mock workflow" /><section className="analysis-page__panel"><div className="analysis-page__detail"><h2 className="analysis-page__detail-title">Scanner integration point</h2><p className="analysis-page__description">No endpoint is called. When the backend contract is finalized, this view can submit a source path and replace the mock findings with the returned CryptoFinding[].</p><button className="analysis-page__button" type="button" disabled>Backend scan unavailable</button></div></section></main>
+  const [path, setPath] = useState("data/sample/demo-target")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [result, setResult] = useState(null)
+
+  const handleRun = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const resp = await runScan(path)
+      // Persist the full response so other views can use it.
+      localStorage.setItem("qbits_latest_analysis", JSON.stringify(resp))
+      setResult(resp)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <main className="analysis-page">
+      <PageIntro icon={ScanSearch} title="New scan" description="Submit a repository path to scan; the backend will run the scanner, CBOM and risk engines." meta={loading ? "Scanning…" : result ? "Scan complete" : "Ready"} />
+      <section className="analysis-page__panel">
+        <div className="analysis-page__detail">
+          <h2 className="analysis-page__detail-title">Scanner integration point</h2>
+          <p className="analysis-page__description">Provide a path (relative to the backend process) or leave the demo target. The backend will perform the real analysis and the other pages will read the results.</p>
+          <input type="text" className="analysis-page__filter" value={path} onChange={(e) => setPath(e.target.value)} aria-label="Scan path" />
+          <div style={{ marginTop: 12 }}>
+            <button className="analysis-page__button" type="button" onClick={handleRun} disabled={loading}>{loading ? "Scanning…" : "Run scan"}</button>
+            {error && <div style={{ color: "#d00", marginTop: 8 }}>{error}</div>}
+            {result && <div style={{ color: "#080", marginTop: 8 }}>Scan completed: {result.files_scanned} files scanned, {result.crypto_assets_found} assets found.</div>}
+          </div>
+        </div>
+      </section>
+    </main>
+  )
 }
