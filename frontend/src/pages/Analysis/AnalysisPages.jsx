@@ -272,87 +272,183 @@ export function FindingsPage({
 }
 
 export function RiskPage({ analysis }) {
+  const [selectedId, setSelectedId] = useState(null)
+
   if (!analysis) return <Empty />
 
+  const assessments = analysis.risk?.assessments || []
   const distribution = analysis.risk?.risk_distribution || {}
+  
+  const repoName = analysis.scanned_path ? analysis.scanned_path.split(/[/\\]/).pop() || analysis.scanned_path : "Unknown repository"
+  const totalAssessed = analysis.risk?.assets_assessed ?? assessments.length
+
+  const getRiskColor = (level) => {
+    switch(level) {
+      case 'CRITICAL': return 'var(--red)'
+      case 'HIGH': return 'var(--orange)'
+      case 'MEDIUM': return 'var(--amber)'
+      case 'LOW': return 'var(--green)'
+      default: return 'var(--text)'
+    }
+  }
 
   return (
     <main className="analysis-page">
       <PageIntro
         icon={Gauge}
-        title="Risk assessment"
-        description="Deterministic backend risk assessment for the generated CBOM."
-        meta="Latest backend assessment"
+        title="Risk Assessment"
+        description="Deterministic risk assessment of cryptographic components identified during the latest scan."
+        meta={`${repoName} • ${totalAssessed} components assessed`}
       />
 
       <div className="analysis-page__cards">
-        {["CRITICAL", "HIGH", "MEDIUM", "LOW"].map(
-          (level) => (
-            <div
-              className="analysis-page__summary-card"
-              key={level}
-            >
-              <div className="analysis-page__summary-value">
-                {distribution[level] || 0}
-              </div>
-
-              <div className="analysis-page__summary-label">
-                {level} components
-              </div>
+        {["CRITICAL", "HIGH", "MEDIUM", "LOW"].map((level) => (
+          <div className="analysis-page__summary-card" key={level}>
+            <div className="analysis-page__summary-value" style={{ color: getRiskColor(level) }}>
+              {distribution[level] || 0}
             </div>
-          )
-        )}
+            <div className="analysis-page__summary-label">
+              {level.charAt(0) + level.slice(1).toLowerCase()} risk
+            </div>
+          </div>
+        ))}
       </div>
 
       <section className="analysis-page__panel">
         <div className="analysis-page__table-wrap">
-          <table className="analysis-page__table">
+          <table className="analysis-page__table analysis-page__table--findings">
             <thead>
               <tr>
-                <th>Severity</th>
+                <th>Risk</th>
                 <th>Algorithm</th>
-                <th>Locations</th>
-                <th>Reasons</th>
-                <th>Priority / quantum</th>
+                <th>Category</th>
+                <th>Risk Score</th>
+                <th>Quantum Relevance</th>
+                <th>Migration Priority</th>
+                <th>Affected Assets</th>
+                <th />
               </tr>
             </thead>
-
             <tbody>
-              {(analysis.risk?.assessments || []).map(
-                (item) => (
-                  <tr key={item.identifier}>
-                    <td>
-                      <SeverityBadge
-                        level={item.risk_level.toLowerCase()}
-                      />
-                    </td>
-
-                    <td className="analysis-page__mono">
-                      {item.algorithm}
-                    </td>
-
-                    <td>
-                      {item.affected_files?.join(", ") ||
-                        "Not reported"}
-                    </td>
-
-                    <td>
-                      {item.reasons?.join(" ") ||
-                        "Not reported"}
-                    </td>
-
-                    <td>
-                      {item.migration_priority} /{" "}
-                      {item.quantum_relevance}
-                    </td>
-                  </tr>
-                )
+              {assessments.length === 0 ? (
+                <tr>
+                  <td colSpan={8}>
+                    <div className="analysis-page__empty" style={{ padding: '32px 16px' }}>
+                      <Gauge size={32} strokeWidth={1.5} className="analysis-page__empty-icon" />
+                      <h3 className="analysis-page__empty-title">Clean Assessment</h3>
+                      <p className="analysis-page__empty-message">No cryptographic components requiring risk assessment were detected.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                assessments.map((item) => {
+                  const isExpanded = selectedId === item.identifier
+                  return (
+                    <React.Fragment key={item.identifier}>
+                      <tr onClick={() => setSelectedId(isExpanded ? null : item.identifier)} className={isExpanded ? 'is-expanded' : ''}>
+                        <td>
+                          <SeverityBadge level={item.risk_level.toLowerCase()} />
+                        </td>
+                        <td className="analysis-page__mono">
+                          {item.algorithm}
+                          {item.key_sizes && item.key_sizes.length > 0 && (
+                            <span className="analysis-page__subtext">{item.key_sizes.join(', ')}-bit</span>
+                          )}
+                        </td>
+                        <td>{item.category || "Not reported"}</td>
+                        <td>{item.risk_score}</td>
+                        <td>
+                          {item.quantum_relevance === 'HIGH' ? (
+                            <span className="analysis-page__tag" style={{ borderColor: 'var(--amber)', color: 'var(--amber)' }}>HIGH</span>
+                          ) : (
+                            <span className="analysis-page__tag">{item.quantum_relevance || "UNKNOWN"}</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className="analysis-page__tag">{item.migration_priority}</span>
+                        </td>
+                        <td>
+                          <div className="analysis-page__file" title={item.affected_files?.join("\n")}>
+                            {item.affected_files?.length > 0 
+                              ? `${item.affected_files[0].split(/[/\\]/).pop()} ${item.affected_files.length > 1 ? `(+${item.affected_files.length - 1})` : ''}`
+                              : "Not reported"}
+                          </div>
+                        </td>
+                        <td className="analysis-page__act">
+                          <button
+                            className="analysis-page__button"
+                            type="button"
+                            aria-expanded={isExpanded}
+                          >
+                            {isExpanded ? "Close" : "View"}
+                          </button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="analysis-page__row-detail">
+                          <td colSpan={8}>
+                            <RiskDetail assessment={item} />
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )
+                })
               )}
             </tbody>
           </table>
         </div>
       </section>
     </main>
+  )
+}
+
+function RiskDetail({ assessment }) {
+  if (!assessment) return null
+
+  return (
+    <div className="analysis-page__finding-detail">
+      <div className="analysis-page__detail-grid">
+        <div className="analysis-page__detail-item">
+          <span className="analysis-page__detail-label">Algorithm</span>
+          <span className="analysis-page__detail-value">{assessment.algorithm}</span>
+        </div>
+        <div className="analysis-page__detail-item">
+          <span className="analysis-page__detail-label">Category</span>
+          <span className="analysis-page__detail-value">{assessment.category || "Not reported"}</span>
+        </div>
+        <div className="analysis-page__detail-item">
+          <span className="analysis-page__detail-label">Risk Score</span>
+          <span className="analysis-page__detail-value">{assessment.risk_score}</span>
+        </div>
+        <div className="analysis-page__detail-item">
+          <span className="analysis-page__detail-label">Recommendation</span>
+          <span className="analysis-page__detail-value">{assessment.recommendation || "Review and replace"}</span>
+        </div>
+      </div>
+      
+      {assessment.reasons && assessment.reasons.length > 0 && (
+        <div className="analysis-page__snippet">
+          <div className="analysis-page__snippet-header">Risk Reasoning</div>
+          <div className="analysis-page__snippet-content" style={{ whiteSpace: 'normal', fontFamily: 'inherit' }}>
+            <ul style={{ margin: 0, paddingLeft: 16 }}>
+              {assessment.reasons.map((r, i) => (
+                <li key={i}>{r}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {assessment.affected_files && assessment.affected_files.length > 0 && (
+        <div className="analysis-page__snippet">
+          <div className="analysis-page__snippet-header">Affected Locations</div>
+          <div className="analysis-page__snippet-content">
+            {assessment.affected_files.join("\n")}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
