@@ -1,5 +1,4 @@
 import "./Dashboard.css"
-import { useState } from "react"
 import { Files, ShieldAlert, Braces, Atom } from "lucide-react"
 import SummaryHero from "../../components/SummaryHero/SummaryHero"
 import StatCard from "../../components/StatCard/StatCard"
@@ -23,8 +22,7 @@ function computeStats(findings) {
   return { highRisk, algorithms, quantumVulnerable }
 }
 
-function Dashboard() {
-  const [searchQuery, setSearchQuery] = useState("")
+function Dashboard({ searchQuery = "", onSearchChange }) {
   const stats = computeStats(MOCK_FINDINGS)
   const algoDist = computeAlgorithmDistribution(MOCK_FINDINGS)
   const langDist = computeLanguageDistribution(MOCK_FINDINGS)
@@ -93,7 +91,7 @@ function Dashboard() {
         totalCount={MOCK_FINDINGS.length}
         limit={8}
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={onSearchChange}
       />
     </main>
   )
