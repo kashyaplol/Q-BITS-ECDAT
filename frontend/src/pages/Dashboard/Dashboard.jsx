@@ -78,19 +78,19 @@ function Dashboard({ analysis, searchQuery = "", onSearchChange }) {
         />
 
         <StatCard
-          title="High Risk"
+          title="Critical & High Risk"
           value={highRisk}
           icon={ShieldAlert}
           tone="red"
-          description="Critical and high-risk CBOM components"
+          description="High severity cryptographic components"
         />
 
         <StatCard
-          title="Components"
+          title="Distinct Components"
           value={analysis?.cbom?.components?.length || 0}
           icon={Braces}
           tone="cyan"
-          description="Distinct cryptographic components in the CBOM"
+          description="Unique algorithms identified in the CBOM"
         />
 
         <StatCard
@@ -98,27 +98,31 @@ function Dashboard({ analysis, searchQuery = "", onSearchChange }) {
           value={quantumRelevant}
           icon={Atom}
           tone="amber"
-          description="Components requiring PQC migration planning"
+          description="Components requiring PQC migration"
         />
       </section>
 
       {analysis ? (
         <>
-          <PriorityActions
-            assessments={assessments}
-            limit={5}
-          />
+          <div className="dashboard__row-primary">
+            <div className="dashboard__col-risk">
+              <RiskDistribution
+                data={riskData}
+                total={analysis.risk?.assets_assessed || 0}
+              />
+            </div>
+            <div className="dashboard__col-priority">
+              <PriorityActions
+                assessments={assessments}
+                limit={5}
+              />
+            </div>
+          </div>
 
-          <div className="dashboard__viz-row">
-            <RiskDistribution
-              data={riskData}
-              total={analysis.risk?.assets_assessed || 0}
-            />
-
+          <div className="dashboard__row-secondary">
             <AlgorithmDistribution
               data={computeAlgorithmDistribution(findings)}
             />
-
             <LanguageDistribution
               data={computeLanguageDistribution(findings)}
             />
@@ -127,15 +131,15 @@ function Dashboard({ analysis, searchQuery = "", onSearchChange }) {
           <RecentFindings
             findings={filtered}
             totalCount={findings.length}
-            limit={8}
+            limit={10}
             searchQuery={searchQuery}
             onSearchChange={onSearchChange}
           />
         </>
       ) : (
         <section className="dashboard__empty">
-          Run a scan to display real findings, CBOM
-          inventory, and risk results.
+          <h3 className="dashboard__empty-title">No analysis data</h3>
+          <p className="dashboard__empty-message">Run a scan to display real findings, CBOM inventory, and risk results.</p>
         </section>
       )}
     </main>

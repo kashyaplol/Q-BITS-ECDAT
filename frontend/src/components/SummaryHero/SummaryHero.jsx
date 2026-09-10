@@ -1,24 +1,27 @@
 import "./SummaryHero.css"
-import { Radar, CheckCircle2, FileSearch, Clock } from "lucide-react"
+import { FolderGit2, CheckCircle2, FileSearch, Clock } from "lucide-react"
 import { timeAgo, formatTimestamp } from "../../utils/risk"
 
 function SummaryHero({ analysis }) {
   const scannedAt = analysis?.scannedAt
   const relTime = scannedAt ? timeAgo(scannedAt) : "Not scanned"
   const exactTime = scannedAt ? formatTimestamp(scannedAt) : ""
+  
+  const path = analysis?.scanned_path
+  const repoName = path ? path.split(/[/\\]/).pop() || path : "No active scan"
 
   return (
     <section className="hero">
       <div className="hero__content">
         <div className="hero__brand">
           <div className="hero__logo">
-            <Radar size={22} strokeWidth={2} />
+            <FolderGit2 size={22} strokeWidth={2} />
           </div>
 
           <div className="hero__title-group">
-            <h1 className="hero__title">Q-BITS ECDAT</h1>
+            <h1 className="hero__title">{repoName}</h1>
             <span className="hero__subtitle">
-              Cryptographic discovery and risk assessment
+              {path || "Run a new scan to assess cryptographic risk"}
             </span>
           </div>
         </div>
@@ -40,7 +43,7 @@ function SummaryHero({ analysis }) {
 
           <div className="hero__metric">
             <span className="hero__metric-value hero__metric-value--accent">
-              {analysis?.finding_count ?? 0}
+              {analysis?.finding_count ?? analysis?.crypto_assets_found ?? 0}
             </span>
             <span className="hero__metric-label">Findings</span>
           </div>
@@ -65,9 +68,9 @@ function SummaryHero({ analysis }) {
             <CheckCircle2
               size={14}
               strokeWidth={2}
-              className="hero__metric-icon hero__metric-icon--ok"
+              className={`hero__metric-icon ${analysis ? "hero__metric-icon--ok" : ""}`}
             />
-            <span className="hero__metric-value hero__metric-value--ok">
+            <span className={`hero__metric-value ${analysis ? "hero__metric-value--ok" : ""}`}>
               {analysis ? "Completed" : "Awaiting scan"}
             </span>
             <span className="hero__metric-label">Status</span>

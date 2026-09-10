@@ -64,7 +64,12 @@ function PriorityActions({ assessments, limit = 5 }) {
                     <span className="priority-actions__action">{assessment.recommendation}</span>
                   </td>
                   <td className="priority-actions__col-act">
-                    <button type="button" className="priority-actions__view" aria-label={`View ${assessment.algorithm} assessment`}>
+                    <button 
+                      type="button" 
+                      className="priority-actions__view" 
+                      aria-label={`View ${assessment.algorithm} assessment`}
+                      onClick={() => window.location.hash = 'migration'}
+                    >
                       <Eye size={14} strokeWidth={2} />
                       View
                     </button>

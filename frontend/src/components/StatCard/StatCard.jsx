@@ -1,6 +1,6 @@
 import "./StatCard.css"
 
-function StatCard({ title, value, delta, description, icon: Icon, tone = "accent" }) {
+function StatCard({ title, value, description, icon: Icon, tone = "accent" }) {
   const toneClass = `stat-card--${tone}`
 
   return (
@@ -9,12 +9,6 @@ function StatCard({ title, value, delta, description, icon: Icon, tone = "accent
         <div className="stat-card__icon">
           <Icon size={18} strokeWidth={2} />
         </div>
-        {delta != null && (
-          <span className={`stat-card__delta${delta >= 0 ? "" : " is-down"}`}>
-            {delta >= 0 ? "+" : ""}
-            {delta}%
-          </span>
-        )}
       </div>
       <div className="stat-card__value">{value}</div>
       <div className="stat-card__title">{title}</div>
