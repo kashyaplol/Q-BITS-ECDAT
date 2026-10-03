@@ -7,8 +7,6 @@
 - Quantum-risk assessment
 - Post-Quantum Cryptography (PQC) migration prioritization
 
-Built as a Smart India Hackathon project.
-
 ---
 
 ## Features
